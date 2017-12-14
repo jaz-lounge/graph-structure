@@ -1,19 +1,17 @@
 import deepEqual from 'deep-equal'
 
 export default class Graph {
-  constructor({ bidirectional }) {
+  constructor({ bidirectional } = {}) {
     this.bidirectional = bidirectional || false
     // TODO: Think about Map/WeakMap
     this.nodes = {}
     this.edges = {}
   }
 
-  // TODO: What happens on existing node?
-  addNode(nodeId) {
-    this.nodes[nodeId] = { edges: {} }
+  addNode(nodeId, data) {
+    this.nodes[nodeId] = { edges: {}, data }
   }
 
-  // TODO: What happens on existing edge?
   addEdge(fromId, toId, data = true) {
     this.nodes[fromId].edges[toId] = data
     if (this.bidirectional) {
@@ -21,13 +19,32 @@ export default class Graph {
     }
   }
 
+  hasNode(nodeId) {
+    return !!this.nodes[nodeId]
+  }
+
+  getNode(nodeId) {
+    return this.nodes[nodeId].data || null
+  }
+
+  removeNode(nodeId) {
+    delete this.nodes[nodeId]
+
+    for (var nId in this.nodes) {
+      delete this.nodes[nId].edges[nodeId]
+    }
+  }
+
   isEqual(anotherGraph) {
     return deepEqual(this.toJson().nodes, anotherGraph.toJson().nodes)
   }
 
-  // TODO: Test not existing nodes
   hasEdge(n1, n2) {
-    return this.nodes[n1].edges[n2] !== undefined
+    return !!(this.nodes[n1] && this.nodes[n1].edges[n2] !== undefined)
+  }
+
+  edgeValue(n1, n2) {
+    return this.nodes[n1].edges[n2] || null
   }
 
   removeEdge(n1, n2) {

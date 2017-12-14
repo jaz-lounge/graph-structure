@@ -11,6 +11,14 @@ describe('Graph', () => {
   }
   let g
 
+  it('default version is unidirectional', () => {
+    g = new Graph()
+    expect(g.toJson()).toEqual({
+      bidirectional: false,
+      nodes: {}
+    })
+  })
+
   describe('a bidirectional Graph', () => {
     beforeEach(() => {
       g = new Graph({ bidirectional: true })
@@ -25,6 +33,21 @@ describe('Graph', () => {
         nodes: {
           1: { edges: {} },
           2: { edges: {} }
+        }
+      })
+    })
+
+    it('nodes can have data attached', () => {
+      g.addNode('1')
+      g.addNode('2', { foo: 'bar' })
+      g.addNode('3', 23)
+
+      expect(g.toJson()).toEqual({
+        bidirectional: true,
+        nodes: {
+          1: { edges: {} },
+          2: { edges: {}, data: { foo: 'bar' } },
+          3: { edges: {}, data: 23 }
         }
       })
     })
@@ -63,6 +86,21 @@ describe('Graph', () => {
       })
     })
 
+    it('redefining edges changes the value (also the other way)', () => {
+      g.addNode('1')
+      g.addNode('2')
+      g.addEdge('1', '2', 23)
+      g.addEdge('2', '1', 'B')
+
+      expect(g.toJson()).toEqual({
+        bidirectional: true,
+        nodes: {
+          '1': { edges: { '2': 'B' } },
+          '2': { edges: { '1': 'B' } }
+        }
+      })
+    })
+
     it('can be created from json data', () => {
       g = Graph.fromJson(graphJson)
       expect(g.toJson()).toEqual(graphJson)
@@ -80,6 +118,11 @@ describe('Graph', () => {
 
       it('is false if link does not exist', () => {
         expect(g.hasEdge('3', '2')).toEqual(false)
+      })
+
+      it('is false if one node does not exist', () => {
+        expect(g.hasEdge('3', '404')).toEqual(false)
+        expect(g.hasEdge('404', '2')).toEqual(false)
       })
     })
 
@@ -152,6 +195,35 @@ describe('Graph', () => {
 
       it('is false if link does not exist', () => {
         expect(g.hasEdge('3', '2')).toEqual(false)
+      })
+
+      it('is still true although it as an edge with a value', () => {
+        g.addEdge('3', '2', 'A')
+        expect(g.hasEdge('3', '2')).toEqual(true)
+      })
+    })
+
+    describe('#edgeValue', () => {
+      beforeEach(() => {
+        g.addNode('1')
+        g.addNode('2')
+        g.addNode('3')
+        g.addEdge('1', '2', 'A')
+        g.addEdge('2', '1', 'B')
+        g.addEdge('2', '3')
+      })
+
+      it('returns assigned value', () => {
+        expect(g.edgeValue('1', '2')).toEqual('A')
+        expect(g.edgeValue('2', '1')).toEqual('B')
+      })
+
+      it('is true when exist but no value is assigned', () => {
+        expect(g.edgeValue('2', '3')).toEqual(true)
+      })
+
+      it('is null if not existent', () => {
+        expect(g.edgeValue('3', '2')).toEqual(null)
       })
     })
 
@@ -271,31 +343,58 @@ describe('Graph', () => {
     })
   })
 
-  // describe('#removeNode', () => {
-  //   beforeEach(() => {
-  //     g = Graph.fromJson(graphJson)
-  //   })
-  //
-  //   it('is equal if nodes and edges are the same', () => {
-  //     expect(g.isEqual(g2)).toEqual(true)
-  //     expect(g2.isEqual(g)).toEqual(true)
-  //   })
-  //
-  //   it('is not equal if there are some nodes more', () => {
-  //     g2.addNode('3')
-  //     expect(g.isEqual(g2)).toEqual(false)
-  //     expect(g2.isEqual(g)).toEqual(false)
-  //   })
-  //
-  //   it('is not equal if there are some edges more', () => {
-  //     g2.addEdge('3', '2')
-  //     expect(g.isEqual(g2)).toEqual(false)
-  //     expect(g2.isEqual(g)).toEqual(false)
-  //   })
-  //
-  //   it('does not care about options', () => {
-  //     expect(g.isEqual(g3)).toEqual(true)
-  //     expect(g3.isEqual(g)).toEqual(true)
-  //   })
-  // })
+  describe('#hasNode', () => {
+    beforeEach(() => {
+      g = new Graph()
+      g.addNode('1', 'data')
+      g.addNode('2')
+      g.addNode('3')
+      g.addEdge('1', '2')
+    })
+
+    it('returns true also when data exists', () => {
+      expect(g.hasNode('1')).toEqual(true)
+      expect(g.hasNode('2')).toEqual(true)
+    })
+
+    it('returns falls when not existent', () => {
+      expect(g.hasNode('4')).toEqual(false)
+    })
+  })
+
+  describe('#getNode', () => {
+    beforeEach(() => {
+      g = new Graph()
+      g.addNode('1', 'data')
+      g.addNode('2')
+      g.addNode('3')
+      g.addEdge('1', '2')
+    })
+
+    it('returns the data', () => {
+      expect(g.getNode('1')).toEqual('data')
+    })
+
+    it('returns null otherwise', () => {
+      expect(g.getNode('2')).toEqual(null)
+      expect(g.getNode('3')).toEqual(null)
+    })
+  })
+
+  describe('#removeNode', () => {
+    beforeEach(() => {
+      g = Graph.fromJson(graphJson)
+    })
+
+    it('removes the node and all attached edges', () => {
+      g.removeNode('1')
+      expect(g.toJson()).toEqual({
+        bidirectional: true,
+        nodes: {
+          '2': { edges: {} },
+          '3': { edges: {} }
+        }
+      })
+    })
+  })
 })
