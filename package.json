@@ -1,0 +1,21 @@
+{
+  "name": "graph-structure",
+  "version": "0.1.0",
+  "description": "A graph datastructure to store data in and pathfinding with given or own algrotihms, like the A*Star algorithm",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Georg Tavonius <g.tavonius@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-jest": "^21.2.0",
+    "babel-preset-es2015": "^6.24.1",
+    "jest": "^21.2.1",
+    "regenerator-runtime": "^0.11.1"
+  },
+  "dependencies": {
+    "deep-equal": "^1.0.1"
+  }
+}
