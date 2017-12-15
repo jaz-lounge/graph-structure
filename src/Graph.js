@@ -58,6 +58,10 @@ export default class Graph {
     return this.hasOutgoingEdges(node) || this.hasIncomingEdges(node)
   }
 
+  outgoingEdges(node) {
+    return Object.keys(this.nodes[node].edges)
+  }
+
   hasOutgoingEdges(node) {
     return Object.keys(this.nodes[node].edges).length > 0
   }

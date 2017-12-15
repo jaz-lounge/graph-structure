@@ -324,6 +324,25 @@ describe('Graph', () => {
     })
   })
 
+  describe('#outgoingEdges', () => {
+    beforeEach(() => {
+      g = new Graph({ bidirectional: false })
+      g.addNode('1')
+      g.addNode('2')
+      g.addNode('3')
+      g.addEdge('1', '2')
+    })
+
+    it('returns ids of outgoing edges', () => {
+      expect(g.outgoingEdges('1')).toEqual(['2'])
+    })
+
+    it('returns empty array for nodes without outgoing edges', () => {
+      expect(g.outgoingEdges('2')).toEqual([])
+      expect(g.outgoingEdges('3')).toEqual([])
+    })
+  })
+
   describe('#hasIncomingEdges', () => {
     beforeEach(() => {
       g = new Graph({ bidirectional: false })
