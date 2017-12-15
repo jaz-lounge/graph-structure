@@ -3,4 +3,6 @@ import AStar from './algorithms/AStar'
 
 export default Graph
 
-export AStar
+export {
+  AStar
+}
