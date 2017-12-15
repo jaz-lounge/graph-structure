@@ -1,6 +1,6 @@
 {
   "name": "graph-structure",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A graph datastructure to store data in and pathfinding with given or own algrotihms, like the A*Star algorithm",
   "main": "src/index.js",
   "scripts": {
